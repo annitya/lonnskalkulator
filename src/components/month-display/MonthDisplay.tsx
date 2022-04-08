@@ -25,11 +25,11 @@ export const MonthDisplay: FunctionComponent<Props> = ({
     tabell,
     setHoursInMonth,
 }) => {
-    const bruttolønn = timepris * hoursInMonth * 0.6;
-    const feriepengeTrekk = bruttolønn * 0.12;
-    const lønnFørSkatt = bruttolønn - feriepengeTrekk;
-    const trekk = skattetrekk(lønnFørSkatt, tabell);
-    const nettolønn = lønnFørSkatt - trekk;
+    const grunnbeløp = timepris * hoursInMonth * 0.6;
+    const feriepengeTrekk = grunnbeløp * 0.12;
+    const brutto = grunnbeløp - feriepengeTrekk;
+    const trekk = skattetrekk(brutto, tabell);
+    const nettolønn = brutto - trekk;
 
     return (
         <div className="monthDisplay">
@@ -43,8 +43,9 @@ export const MonthDisplay: FunctionComponent<Props> = ({
                     placeholder={String(hoursInMonth)}
                     onChange={(event) => setHoursInMonth(parseFloat(event.target.value))}
                 />
-                <MonthSummaryItem item="Brutto" value={formatNumber(bruttolønn)} />
+                <MonthSummaryItem item="Grunnbeløp" value={formatNumber(grunnbeløp)} />
                 <MonthSummaryItem item="Feriepenger" value={`-${formatNumber(feriepengeTrekk)}`} />
+                <MonthSummaryItem item="Brutto" value={`${formatNumber(brutto)}`} />
                 <MonthSummaryItem item="Skatt" value={`-${formatNumber(trekk)}`} />
                 <MonthSummaryItem item="Netto" value={`${formatNumber(nettolønn)}`} />
             </div>
