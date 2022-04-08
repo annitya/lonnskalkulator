@@ -23,7 +23,25 @@ input[type='number'] {
 
 p {
     color: white;
-    font-size: 1.25rem;
+    font-size: 1rem;
+    margin: 0.25rem 0;
+}
+
+p,
+h1,
+h2,
+label {
+    font-family: 'Times New Roman', Times, serif;
+}
+
+h2 {
+    color: white;
+    margin-bottom: 0.5rem;
+}
+
+label {
+    color: white;
+    font-size: 1rem;
 }
 
 .App {
@@ -31,4 +49,10 @@ p {
     display: flex;
     flex-direction: column;
     align-items: center;
+}
+
+.monthWrapper {
+    display: flex;
+    padding: 0rem 4rem;
+    justify-content: space-between;
 }

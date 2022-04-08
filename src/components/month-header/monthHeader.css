@@ -1,0 +1,10 @@
+.monthHeader {
+    background-color: white;
+    padding: 0.55rem 0;
+}
+
+.monthHeader > h2 {
+    color: black;
+    margin: 0;
+    text-align: center;
+}
