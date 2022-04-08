@@ -2,7 +2,7 @@
     "name": "lonnskalkulator",
     "version": "0.1.0",
     "private": true,
-    "homepage": "https://andreasdybdahl.github.io/lonnskalulator/",
+    "homepage": "https://andreasdybdahl.github.io/lonnskalkulator/",
     "dependencies": {
         "@testing-library/jest-dom": "^5.14.1",
         "@testing-library/react": "^11.2.7",
