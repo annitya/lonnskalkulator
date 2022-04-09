@@ -56,3 +56,9 @@ label {
     padding: 0rem 4rem;
     justify-content: space-between;
 }
+
+@media (max-width: 800px) {
+    .monthWrapper {
+        flex-direction: column;
+    }
+}
