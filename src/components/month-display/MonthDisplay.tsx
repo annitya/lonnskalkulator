@@ -14,10 +14,6 @@ interface Props {
     setHoursInMonth: (hours: number) => void;
 }
 
-const formatNumber = (n: number): string => {
-    return n.toLocaleString();
-};
-
 export const MonthDisplay: FunctionComponent<Props> = ({
     nameOfMonth,
     hoursInMonth,
@@ -26,10 +22,10 @@ export const MonthDisplay: FunctionComponent<Props> = ({
     setHoursInMonth,
 }) => {
     const grunnbeløp = timepris * hoursInMonth * 0.6;
-    const feriepengeTrekk = grunnbeløp * 0.12;
-    const brutto = grunnbeløp - feriepengeTrekk;
-    const trekk = skattetrekk(brutto, tabell);
-    const nettolønn = brutto - trekk;
+    const feriepengeTrekk = grunnbeløp * 0.12 * -1;
+    const brutto = grunnbeløp + feriepengeTrekk;
+    const trekk = skattetrekk(brutto, tabell) * -1;
+    const nettolønn = brutto + trekk;
 
     return (
         <div className="monthDisplay">
@@ -43,11 +39,11 @@ export const MonthDisplay: FunctionComponent<Props> = ({
                     placeholder={String(hoursInMonth)}
                     onChange={(event) => setHoursInMonth(parseFloat(event.target.value))}
                 />
-                <MonthSummaryItem item="Grunnbeløp" value={formatNumber(grunnbeløp)} />
-                <MonthSummaryItem item="Feriepenger" value={`-${formatNumber(feriepengeTrekk)}`} />
-                <MonthSummaryItem item="Brutto" value={`${formatNumber(brutto)}`} />
-                <MonthSummaryItem item="Skatt" value={`-${formatNumber(trekk)}`} />
-                <MonthSummaryItem item="Netto" value={`${formatNumber(nettolønn)}`} />
+                <MonthSummaryItem item="Grunnbeløp" value={grunnbeløp} />
+                <MonthSummaryItem item="Feriepenger" value={feriepengeTrekk} />
+                <MonthSummaryItem item="Brutto" value={brutto} />
+                <MonthSummaryItem item="Skatt" value={trekk} />
+                <MonthSummaryItem item="Netto" value={nettolønn} />
             </div>
         </div>
     );
