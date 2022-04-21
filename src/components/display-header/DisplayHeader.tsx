@@ -1,14 +1,14 @@
 import { FunctionComponent } from 'react';
 
-import './monthHeader.css';
+import './DisplayHeader.css';
 
 interface Props {
     title: string;
 }
 
-export const MonthHeader: FunctionComponent<Props> = ({ title }) => {
+export const DisplayHeader: FunctionComponent<Props> = ({ title }) => {
     return (
-        <div className="monthHeader">
+        <div className="displayHeader">
             <h2>{title}</h2>
         </div>
     );

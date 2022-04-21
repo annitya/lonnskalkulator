@@ -1,4 +1,4 @@
-.monthSummaryItem {
+.summaryItem {
     display: flex;
     justify-content: space-between;
 }

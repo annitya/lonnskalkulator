@@ -53,8 +53,7 @@ label {
 
 .monthWrapper {
     display: flex;
-    padding: 0rem 4rem;
-    justify-content: space-between;
+    justify-content: center;
 }
 
 @media (max-width: 800px) {

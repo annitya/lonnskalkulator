@@ -6,30 +6,100 @@ import { useState } from 'react';
 import { getHoursInMonth } from './utils/dateUtils';
 import { Month } from './types/Month';
 import Input from './components/input/Input';
-import { Tabell } from './skattetabell/2022';
+import { skattetrekk, Tabell, tableNames } from './skattetabell/2022';
+import { YearDisplay } from './components/year-display/YearDisplay';
+
+export interface MonthState {
+    timer: number;
+    grunnbeløp: number;
+    feriepengeTrekk: number;
+    brutto: number;
+    netto: number;
+    trekk: number;
+}
+
+export interface HoursState {
+    [Month.Jan]: number;
+    [Month.Feb]: number;
+    [Month.Mar]: number;
+    [Month.Apr]: number;
+    [Month.May]: number;
+    [Month.Jun]: number;
+    [Month.Jul]: number;
+    [Month.Aug]: number;
+    [Month.Sep]: number;
+    [Month.Oct]: number;
+    [Month.Nov]: number;
+    [Month.Dec]: number;
+}
+
+const monthStateBuilder =
+    (timepris: number, andel: number, tabell: Tabell) =>
+    (hoursInMonth: number, month: Month): MonthState => {
+        const grunnbeløp = timepris * hoursInMonth * andel;
+        const feriepengeTrekk = grunnbeløp * 0.12 * -1;
+        const brutto = grunnbeløp + feriepengeTrekk;
+        const trekk = month === Month.Nov ? skattetrekk(brutto, tabell) * 0.5 * -1 : skattetrekk(brutto, tabell) * -1;
+        const netto = brutto + trekk;
+
+        return {
+            timer: hoursInMonth,
+            grunnbeløp,
+            feriepengeTrekk,
+            brutto,
+            netto,
+            trekk,
+        };
+    };
 
 const App = () => {
-    const [timerJanuar, setTimerJanuar] = useState(() => getHoursInMonth(Month.Jan));
-    const [timerFebruar, setTimerFebruar] = useState(() => getHoursInMonth(Month.Feb));
-    const [timerMars, setTimerMars] = useState(() => getHoursInMonth(Month.Mar));
-    const [timerApril, setTimerApril] = useState(() => getHoursInMonth(Month.Apr));
-    const [timerMai, setTimerMai] = useState(() => getHoursInMonth(Month.May));
-    const [timerJuni, setTimerJuni] = useState(() => getHoursInMonth(Month.Jun));
-    const [timerJuli, setTimerJuli] = useState(() => getHoursInMonth(Month.Jul));
-    const [timerAugust, setTimerAugust] = useState(() => getHoursInMonth(Month.Aug));
-    const [timerSeptember, setTimerSeptember] = useState(() => getHoursInMonth(Month.Sep));
-    const [timerOktober, setTimerOktober] = useState(() => getHoursInMonth(Month.Oct));
-    const [timerNovember, setTimerNovember] = useState(() => getHoursInMonth(Month.Nov));
-    const [timerDesember, setTimerDesember] = useState(() => getHoursInMonth(Month.Dec));
     const [timepris, setTimepris] = useState(1450);
     const [tabell, setTabell] = useState(Tabell.T7100);
+    const [andel, setAndel] = useState(0.6);
+    const getMonthState = monthStateBuilder(timepris, andel, tabell);
+
+    const [hoursState, setHoursState] = useState<HoursState>(() => ({
+        [Month.Jan]: getHoursInMonth(Month.Jan),
+        [Month.Feb]: getHoursInMonth(Month.Feb),
+        [Month.Mar]: getHoursInMonth(Month.Mar),
+        [Month.Apr]: getHoursInMonth(Month.Apr),
+        [Month.May]: getHoursInMonth(Month.May),
+        [Month.Jun]: getHoursInMonth(Month.Jun),
+        [Month.Jul]: getHoursInMonth(Month.Jul),
+        [Month.Aug]: getHoursInMonth(Month.Aug),
+        [Month.Sep]: getHoursInMonth(Month.Sep),
+        [Month.Oct]: getHoursInMonth(Month.Oct),
+        [Month.Nov]: getHoursInMonth(Month.Nov),
+        [Month.Dec]: getHoursInMonth(Month.Dec),
+    }));
+
+    const handleHoursStateChange = (month: Month, timer: number) => {
+        setHoursState((state) => ({
+            ...state,
+            [month]: timer,
+        }));
+    };
 
     return (
         <>
             <div className="App">
                 <Header title="Lønnskalkulator" />
                 <div>
-                    <Select label="Skattetabell" tabell={tabell} setTabell={setTabell} />
+                    <Select
+                        label="Skattetabell"
+                        value={tabell}
+                        options={tableNames.map((table) => ({ name: table, value: table }))}
+                        onChange={(event) => setTabell(event.currentTarget.value as Tabell)}
+                    />
+                    <Select
+                        label="Andel konsulent"
+                        value={andel}
+                        options={[
+                            { value: 0.55, name: '55%' },
+                            { value: 0.6, name: '60%' },
+                        ]}
+                        onChange={(event) => setAndel(parseFloat(event.currentTarget.value))}
+                    />
                     <Input
                         inputId="timepris"
                         label="Timepris"
@@ -38,93 +108,82 @@ const App = () => {
                         onChange={(event) => setTimepris(parseInt(event.target.value, 10))}
                     />
                 </div>
+                <YearDisplay hoursState={hoursState} getMonthState={getMonthState} />
             </div>
             <div className="monthWrapper">
                 <MonthDisplay
-                    nameOfMonth="Januar"
-                    hoursInMonth={timerJanuar}
-                    timepris={timepris}
-                    tabell={tabell}
-                    setHoursInMonth={setTimerJanuar}
+                    timer={hoursState[Month.Jan]}
+                    month={Month.Jan}
+                    handleHoursStateChange={handleHoursStateChange}
+                    getMonthState={getMonthState}
                 />
                 <MonthDisplay
-                    nameOfMonth="Februar"
-                    hoursInMonth={timerFebruar}
-                    timepris={timepris}
-                    tabell={tabell}
-                    setHoursInMonth={setTimerFebruar}
+                    timer={hoursState[Month.Feb]}
+                    month={Month.Feb}
+                    handleHoursStateChange={handleHoursStateChange}
+                    getMonthState={getMonthState}
                 />
                 <MonthDisplay
-                    nameOfMonth="Mars"
-                    hoursInMonth={timerMars}
-                    timepris={timepris}
-                    tabell={tabell}
-                    setHoursInMonth={setTimerMars}
+                    timer={hoursState[Month.Mar]}
+                    month={Month.Mar}
+                    handleHoursStateChange={handleHoursStateChange}
+                    getMonthState={getMonthState}
                 />
                 <MonthDisplay
-                    nameOfMonth="April"
-                    hoursInMonth={timerApril}
-                    timepris={timepris}
-                    tabell={tabell}
-                    setHoursInMonth={setTimerApril}
+                    timer={hoursState[Month.Apr]}
+                    month={Month.Apr}
+                    handleHoursStateChange={handleHoursStateChange}
+                    getMonthState={getMonthState}
                 />
                 <MonthDisplay
-                    nameOfMonth="Mai"
-                    hoursInMonth={timerMai}
-                    timepris={timepris}
-                    tabell={tabell}
-                    setHoursInMonth={setTimerMai}
+                    timer={hoursState[Month.May]}
+                    month={Month.May}
+                    handleHoursStateChange={handleHoursStateChange}
+                    getMonthState={getMonthState}
                 />
                 <MonthDisplay
-                    nameOfMonth="Juni"
-                    hoursInMonth={timerJuni}
-                    timepris={timepris}
-                    tabell={tabell}
-                    setHoursInMonth={setTimerJuni}
+                    timer={hoursState[Month.Jun]}
+                    month={Month.Jun}
+                    handleHoursStateChange={handleHoursStateChange}
+                    getMonthState={getMonthState}
                 />
             </div>
             <div className="monthWrapper">
                 <MonthDisplay
-                    nameOfMonth="Juli"
-                    hoursInMonth={timerJuli}
-                    timepris={timepris}
-                    tabell={tabell}
-                    setHoursInMonth={setTimerJuli}
+                    timer={hoursState[Month.Jul]}
+                    month={Month.Jul}
+                    handleHoursStateChange={handleHoursStateChange}
+                    getMonthState={getMonthState}
                 />
                 <MonthDisplay
-                    nameOfMonth="August"
-                    hoursInMonth={timerAugust}
-                    timepris={timepris}
-                    tabell={tabell}
-                    setHoursInMonth={setTimerAugust}
+                    timer={hoursState[Month.Aug]}
+                    month={Month.Aug}
+                    handleHoursStateChange={handleHoursStateChange}
+                    getMonthState={getMonthState}
                 />
                 <MonthDisplay
-                    nameOfMonth="September"
-                    hoursInMonth={timerSeptember}
-                    timepris={timepris}
-                    tabell={tabell}
-                    setHoursInMonth={setTimerSeptember}
+                    timer={hoursState[Month.Sep]}
+                    month={Month.Sep}
+                    handleHoursStateChange={handleHoursStateChange}
+                    getMonthState={getMonthState}
                 />
                 <MonthDisplay
-                    nameOfMonth="Oktober"
-                    hoursInMonth={timerOktober}
-                    timepris={timepris}
-                    tabell={tabell}
-                    setHoursInMonth={setTimerOktober}
+                    timer={hoursState[Month.Oct]}
+                    month={Month.Oct}
+                    handleHoursStateChange={handleHoursStateChange}
+                    getMonthState={getMonthState}
                 />
                 <MonthDisplay
-                    nameOfMonth="November"
-                    hoursInMonth={timerNovember}
-                    timepris={timepris}
-                    tabell={tabell}
-                    setHoursInMonth={setTimerNovember}
+                    timer={hoursState[Month.Nov]}
+                    month={Month.Nov}
+                    handleHoursStateChange={handleHoursStateChange}
+                    getMonthState={getMonthState}
                 />
                 <MonthDisplay
-                    nameOfMonth="Desember"
-                    hoursInMonth={timerDesember}
-                    timepris={timepris}
-                    tabell={tabell}
-                    setHoursInMonth={setTimerDesember}
+                    timer={hoursState[Month.Dec]}
+                    month={Month.Dec}
+                    handleHoursStateChange={handleHoursStateChange}
+                    getMonthState={getMonthState}
                 />
             </div>
         </>

@@ -1,6 +1,6 @@
 import { FunctionComponent } from 'react';
 
-import './monthSummaryItem.css';
+import './SummaryItem.css';
 
 interface Props {
     item: string;
@@ -8,12 +8,12 @@ interface Props {
 }
 
 const formatNumber = (n: number): string => {
-    return n.toLocaleString();
+    return Math.round(n).toLocaleString();
 };
 
-export const MonthSummaryItem: FunctionComponent<Props> = ({ item, value }) => {
+export const SummaryItem: FunctionComponent<Props> = ({ item, value }) => {
     return (
-        <div className="monthSummaryItem">
+        <div className="summaryItem">
             <p>{item}:</p>
             <p>{formatNumber(value)}</p>
         </div>

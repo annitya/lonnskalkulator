@@ -3,6 +3,7 @@
     border: 1px solid white;
     border-radius: 0.5rem;
     overflow: hidden;
+    margin: 0 1.5rem 2rem 1.5rem;
 }
 
 .monthDisplay > .wrapper {

@@ -1,31 +1,24 @@
-import { FunctionComponent, useId } from 'react';
-import { Tabell, tableNames } from '../../skattetabell/2022';
+import React, { FunctionComponent, useId } from 'react';
 
-import './select.css';
+import './Select.css';
 
 interface Props {
     label: string;
-    tabell: Tabell;
-    setTabell: (tabell: Tabell) => void;
+    value: any;
+    options: any[];
+    onChange: (event: React.FormEvent<HTMLSelectElement>) => void;
 }
 
-export const Select: FunctionComponent<Props> = ({ label, tabell, setTabell }) => {
+export const Select: FunctionComponent<Props> = ({ label, value, options, onChange }) => {
     const id = useId();
 
     return (
         <div className="select">
             <label htmlFor={id}>{label}</label>
-            <select
-                id={id}
-                value={tabell}
-                className="dropdown"
-                onChange={(event) => {
-                    setTabell(event.target.value as Tabell);
-                }}
-            >
-                {tableNames.map((name) => (
-                    <option value={name} key={name}>
-                        {name}
+            <select id={id} value={value} className="dropdown" onChange={onChange}>
+                {options.map((option) => (
+                    <option value={option.value} key={option.name}>
+                        {option.name}
                     </option>
                 ))}
             </select>
