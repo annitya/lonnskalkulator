@@ -34,10 +34,10 @@ const App = () => {
     const getMonthState = monthStateBuilder(timepris, andel, tabell);
 
     const handleHoursStateChange = (month: Month, timer: number) => {
-        setHoursState((state) => ({
-            ...state,
+        setHoursState({
+            ...hoursState,
             [month]: timer,
-        }));
+        });
     };
 
     return (
