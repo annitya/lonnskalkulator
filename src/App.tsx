@@ -16,8 +16,6 @@ const App = () => {
     const [timepris, setTimepris] = useState(1450);
     const [tabell, setTabell] = useState(Tabell.T7100);
     const [andel, setAndel] = useState(0.6);
-    const getMonthState = monthStateBuilder(timepris, andel, tabell);
-
     const [hoursState, setHoursState] = useState<HoursState>(() => ({
         [Month.Jan]: getHoursInMonth(Month.Jan),
         [Month.Feb]: getHoursInMonth(Month.Feb),
@@ -32,6 +30,8 @@ const App = () => {
         [Month.Nov]: getHoursInMonth(Month.Nov),
         [Month.Dec]: getHoursInMonth(Month.Dec),
     }));
+
+    const getMonthState = monthStateBuilder(timepris, andel, tabell);
 
     const handleHoursStateChange = (month: Month, timer: number) => {
         setHoursState((state) => ({
