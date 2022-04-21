@@ -1,56 +1,16 @@
 import Header from './components/header/Header';
-import './App.css';
 import { MonthDisplay } from './components/month-display/MonthDisplay';
 import { Select } from './components/select/Select';
 import { useState } from 'react';
 import { getHoursInMonth } from './utils/dateUtils';
 import { Month } from './types/Month';
 import Input from './components/input/Input';
-import { skattetrekk, Tabell, tableNames } from './skattetabell/2022';
+import { Tabell, tableNames } from './skattetabell/2022';
 import { YearDisplay } from './components/year-display/YearDisplay';
+import { HoursState } from './types/HoursState';
+import { monthStateBuilder } from './utils/monthUtils';
 
-export interface MonthState {
-    timer: number;
-    grunnbeløp: number;
-    feriepengeTrekk: number;
-    brutto: number;
-    netto: number;
-    trekk: number;
-}
-
-export interface HoursState {
-    [Month.Jan]: number;
-    [Month.Feb]: number;
-    [Month.Mar]: number;
-    [Month.Apr]: number;
-    [Month.May]: number;
-    [Month.Jun]: number;
-    [Month.Jul]: number;
-    [Month.Aug]: number;
-    [Month.Sep]: number;
-    [Month.Oct]: number;
-    [Month.Nov]: number;
-    [Month.Dec]: number;
-}
-
-const monthStateBuilder =
-    (timepris: number, andel: number, tabell: Tabell) =>
-    (hoursInMonth: number, month: Month): MonthState => {
-        const grunnbeløp = timepris * hoursInMonth * andel;
-        const feriepengeTrekk = grunnbeløp * 0.12 * -1;
-        const brutto = grunnbeløp + feriepengeTrekk;
-        const trekk = month === Month.Nov ? skattetrekk(brutto, tabell) * 0.5 * -1 : skattetrekk(brutto, tabell) * -1;
-        const netto = brutto + trekk;
-
-        return {
-            timer: hoursInMonth,
-            grunnbeløp,
-            feriepengeTrekk,
-            brutto,
-            netto,
-            trekk,
-        };
-    };
+import './App.css';
 
 const App = () => {
     const [timepris, setTimepris] = useState(1450);

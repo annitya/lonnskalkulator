@@ -4,9 +4,9 @@ import { DisplayHeader } from '../display-header/DisplayHeader';
 import { SummaryItem } from '../summary-item/SummaryItem';
 import { Month } from '../../types/Month';
 import { getNameOfMonth } from '../../utils/monthUtils';
+import { MonthState } from '../../types/MonthState';
 
 import './MonthDisplay.css';
-import { MonthState } from '../../App';
 
 interface Props {
     month: Month;

@@ -1,6 +1,7 @@
 import { FunctionComponent } from 'react';
-import { HoursState, MonthState } from '../../App';
+import { HoursState } from '../../types/HoursState';
 import { Month } from '../../types/Month';
+import { MonthState } from '../../types/MonthState';
 import { DisplayHeader } from '../display-header/DisplayHeader';
 import { SummaryItem } from '../summary-item/SummaryItem';
 

@@ -1,4 +1,6 @@
+import { skattetrekk, Tabell } from '../skattetabell/2022';
 import { Month } from '../types/Month';
+import { MonthState } from '../types/MonthState';
 
 export const getNameOfMonth = (month: Month) => {
     switch (month) {
@@ -28,3 +30,22 @@ export const getNameOfMonth = (month: Month) => {
             return 'Desember';
     }
 };
+
+export const monthStateBuilder =
+    (timepris: number, andel: number, tabell: Tabell) =>
+    (hoursInMonth: number, month: Month): MonthState => {
+        const grunnbeløp = timepris * hoursInMonth * andel;
+        const feriepengeTrekk = grunnbeløp * 0.12 * -1;
+        const brutto = grunnbeløp + feriepengeTrekk;
+        const trekk = month === Month.Nov ? skattetrekk(brutto, tabell) * 0.5 * -1 : skattetrekk(brutto, tabell) * -1;
+        const netto = brutto + trekk;
+
+        return {
+            timer: hoursInMonth,
+            grunnbeløp,
+            feriepengeTrekk,
+            brutto,
+            netto,
+            trekk,
+        };
+    };
