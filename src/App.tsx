@@ -1,22 +1,22 @@
 import Header from './components/header/Header';
 import { MonthDisplay } from './components/month-display/MonthDisplay';
 import { Select } from './components/select/Select';
-import { useState } from 'react';
 import { getHoursInMonth } from './utils/dateUtils';
 import { Month } from './types/Month';
 import Input from './components/input/Input';
 import { Tabell, tableNames } from './skattetabell/2022';
 import { YearDisplay } from './components/year-display/YearDisplay';
-import { HoursState } from './types/HoursState';
 import { monthStateBuilder } from './utils/monthUtils';
+import { HoursState } from './types/HoursState';
+import { useLocalStorage } from './hooks/useLocalStorage';
 
 import './App.css';
 
 const App = () => {
-    const [timepris, setTimepris] = useState(1450);
-    const [tabell, setTabell] = useState(Tabell.T7100);
-    const [andel, setAndel] = useState(0.6);
-    const [hoursState, setHoursState] = useState<HoursState>(() => ({
+    const [timepris, setTimepris] = useLocalStorage<number>('timepris', 1450);
+    const [tabell, setTabell] = useLocalStorage<string>('tabell', Tabell.T7100);
+    const [andel, setAndel] = useLocalStorage<number>('andel', 0.6);
+    const [hoursState, setHoursState] = useLocalStorage<HoursState>('timer', {
         [Month.Jan]: getHoursInMonth(Month.Jan),
         [Month.Feb]: getHoursInMonth(Month.Feb),
         [Month.Mar]: getHoursInMonth(Month.Mar),
@@ -29,7 +29,7 @@ const App = () => {
         [Month.Oct]: getHoursInMonth(Month.Oct),
         [Month.Nov]: getHoursInMonth(Month.Nov),
         [Month.Dec]: getHoursInMonth(Month.Dec),
-    }));
+    });
 
     const getMonthState = monthStateBuilder(timepris, andel, tabell);
 
