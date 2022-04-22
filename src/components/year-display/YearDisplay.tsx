@@ -45,6 +45,7 @@ export const YearDisplay: FunctionComponent<Props> = ({ hoursState, getMonthStat
         <div className="yearDisplay">
             <DisplayHeader title={String(new Date().getFullYear())} />
             <div className="wrapper">
+                <SummaryItem item="Timer" value={totals.timer} />
                 <SummaryItem item="Grunnbeløp" value={totals.grunnbeløp} />
                 <SummaryItem item="Feriepenger" value={totals.feriepengeTrekk} />
                 <SummaryItem item="Brutto" value={totals.brutto} />
