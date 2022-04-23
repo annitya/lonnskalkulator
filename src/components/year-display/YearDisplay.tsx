@@ -40,6 +40,7 @@ const getTotals = (hoursState: HoursState, getMonthState: (hoursInMonth: number,
 
 export const YearDisplay: FunctionComponent<Props> = ({ hoursState, getMonthState }) => {
     const totals = getTotals(hoursState, getMonthState);
+    const skatteprosent = Math.round(Math.abs(totals.trekk / totals.brutto) * 100);
 
     return (
         <div className="yearDisplay">
@@ -49,7 +50,7 @@ export const YearDisplay: FunctionComponent<Props> = ({ hoursState, getMonthStat
                 <SummaryItem item="Grunnbeløp" value={totals.grunnbeløp} />
                 <SummaryItem item="Feriepenger" value={totals.feriepengeTrekk} />
                 <SummaryItem item="Brutto" value={totals.brutto} />
-                <SummaryItem item="Skatt" value={totals.trekk} />
+                <SummaryItem item={`Skatt (${skatteprosent}%)`} value={totals.trekk} />
                 <SummaryItem item="Netto" value={totals.netto} />
             </div>
         </div>
