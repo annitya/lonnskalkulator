@@ -7,16 +7,24 @@ import Input from './components/input/Input';
 import { Tabell, tableNames } from './skattetabell/2022';
 import { YearDisplay } from './components/year-display/YearDisplay';
 import { monthStateBuilder } from './utils/monthUtils';
-import { HoursState } from './types/HoursState';
-import { useLocalStorage } from './hooks/useLocalStorage';
+import { useURLState } from './hooks/useURLState';
 
 import './App.css';
 
-const App = () => {
-    const [timepris, setTimepris] = useLocalStorage<number>('timepris', 1450);
-    const [tabell, setTabell] = useLocalStorage<string>('tabell', Tabell.T7100);
-    const [andel, setAndel] = useLocalStorage<number>('andel', 0.6);
-    const [hoursState, setHoursState] = useLocalStorage<HoursState>('timer', {
+type State = {
+    timepris: number;
+    tabell: Tabell;
+    andel: number;
+    timer: {
+        [T in Month]: number;
+    };
+};
+
+const initialState = (): State => ({
+    timepris: 1450,
+    tabell: Tabell.T7100,
+    andel: 0.6,
+    timer: {
         [Month.Jan]: getHoursInMonth(Month.Jan),
         [Month.Feb]: getHoursInMonth(Month.Feb),
         [Month.Mar]: getHoursInMonth(Month.Mar),
@@ -29,15 +37,28 @@ const App = () => {
         [Month.Oct]: getHoursInMonth(Month.Oct),
         [Month.Nov]: getHoursInMonth(Month.Nov),
         [Month.Dec]: getHoursInMonth(Month.Dec),
-    });
+    },
+});
 
-    const getMonthState = monthStateBuilder(timepris, andel, tabell);
+const App = () => {
+    const [state, updateState] = useURLState<State>(initialState);
+
+    const getMonthState = monthStateBuilder(state.timepris, state.andel, state.tabell);
+
+    const setTabell = (tabell: Tabell) => {
+        updateState((draft) => (draft.tabell = tabell));
+    };
+
+    const setAndel = (andel: number) => {
+        updateState((draft) => (draft.andel = andel));
+    };
+
+    const setTimepris = (timepris: number) => {
+        updateState((draft) => (draft.timepris = timepris));
+    };
 
     const handleHoursStateChange = (month: Month, timer: number) => {
-        setHoursState({
-            ...hoursState,
-            [month]: timer,
-        });
+        updateState((draft) => (draft.timer[month] = timer));
     };
 
     return (
@@ -47,13 +68,13 @@ const App = () => {
                 <div>
                     <Select
                         label="Skattetabell"
-                        value={tabell}
+                        value={state.tabell}
                         options={tableNames.map((table) => ({ name: table, value: table }))}
                         onChange={(event) => setTabell(event.currentTarget.value as Tabell)}
                     />
                     <Select
                         label="Andel konsulent"
-                        value={andel}
+                        value={state.andel}
                         options={[
                             { value: 0.55, name: '55%' },
                             { value: 0.6, name: '60%' },
@@ -64,45 +85,45 @@ const App = () => {
                         inputId="timepris"
                         label="Timepris"
                         placeholder="Eks. 1450"
-                        value={timepris}
+                        value={state.timepris}
                         onChange={(event) => setTimepris(parseInt(event.target.value, 10))}
                     />
                 </div>
-                <YearDisplay hoursState={hoursState} getMonthState={getMonthState} />
+                <YearDisplay hoursState={state.timer} getMonthState={getMonthState} />
             </div>
             <div className="monthWrapper">
                 <MonthDisplay
-                    timer={hoursState[Month.Jan]}
+                    timer={state.timer[Month.Jan]}
                     month={Month.Jan}
                     handleHoursStateChange={handleHoursStateChange}
                     getMonthState={getMonthState}
                 />
                 <MonthDisplay
-                    timer={hoursState[Month.Feb]}
+                    timer={state.timer[Month.Feb]}
                     month={Month.Feb}
                     handleHoursStateChange={handleHoursStateChange}
                     getMonthState={getMonthState}
                 />
                 <MonthDisplay
-                    timer={hoursState[Month.Mar]}
+                    timer={state.timer[Month.Mar]}
                     month={Month.Mar}
                     handleHoursStateChange={handleHoursStateChange}
                     getMonthState={getMonthState}
                 />
                 <MonthDisplay
-                    timer={hoursState[Month.Apr]}
+                    timer={state.timer[Month.Apr]}
                     month={Month.Apr}
                     handleHoursStateChange={handleHoursStateChange}
                     getMonthState={getMonthState}
                 />
                 <MonthDisplay
-                    timer={hoursState[Month.May]}
+                    timer={state.timer[Month.May]}
                     month={Month.May}
                     handleHoursStateChange={handleHoursStateChange}
                     getMonthState={getMonthState}
                 />
                 <MonthDisplay
-                    timer={hoursState[Month.Jun]}
+                    timer={state.timer[Month.Jun]}
                     month={Month.Jun}
                     handleHoursStateChange={handleHoursStateChange}
                     getMonthState={getMonthState}
@@ -110,37 +131,37 @@ const App = () => {
             </div>
             <div className="monthWrapper">
                 <MonthDisplay
-                    timer={hoursState[Month.Jul]}
+                    timer={state.timer[Month.Jul]}
                     month={Month.Jul}
                     handleHoursStateChange={handleHoursStateChange}
                     getMonthState={getMonthState}
                 />
                 <MonthDisplay
-                    timer={hoursState[Month.Aug]}
+                    timer={state.timer[Month.Aug]}
                     month={Month.Aug}
                     handleHoursStateChange={handleHoursStateChange}
                     getMonthState={getMonthState}
                 />
                 <MonthDisplay
-                    timer={hoursState[Month.Sep]}
+                    timer={state.timer[Month.Sep]}
                     month={Month.Sep}
                     handleHoursStateChange={handleHoursStateChange}
                     getMonthState={getMonthState}
                 />
                 <MonthDisplay
-                    timer={hoursState[Month.Oct]}
+                    timer={state.timer[Month.Oct]}
                     month={Month.Oct}
                     handleHoursStateChange={handleHoursStateChange}
                     getMonthState={getMonthState}
                 />
                 <MonthDisplay
-                    timer={hoursState[Month.Nov]}
+                    timer={state.timer[Month.Nov]}
                     month={Month.Nov}
                     handleHoursStateChange={handleHoursStateChange}
                     getMonthState={getMonthState}
                 />
                 <MonthDisplay
-                    timer={hoursState[Month.Dec]}
+                    timer={state.timer[Month.Dec]}
                     month={Month.Dec}
                     handleHoursStateChange={handleHoursStateChange}
                     getMonthState={getMonthState}
