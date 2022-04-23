@@ -37,7 +37,7 @@ export const monthStateBuilder =
         const grunnbeløp = timepris * hoursInMonth * andel;
         const feriepengeTrekk = grunnbeløp * 0.12 * -1;
         const brutto = grunnbeløp + feriepengeTrekk;
-        const trekk = month === Month.Nov ? skattetrekk(brutto, tabell) * 0.5 * -1 : skattetrekk(brutto, tabell) * -1;
+        const trekk = skattetrekk(brutto, tabell) * (month === Month.Nov ? -0.5 : -1);
         const netto = brutto + trekk;
 
         return {
