@@ -10,6 +10,7 @@ import { monthStateBuilder } from './utils/monthUtils';
 import { useURLState } from './hooks/useURLState';
 
 import './App.css';
+import { useCallback } from 'react';
 
 type State = {
     timepris: number;
@@ -45,21 +46,33 @@ const App = () => {
 
     const getMonthState = monthStateBuilder(state.timepris, state.andel, state.tabell);
 
-    const setTabell = (tabell: Tabell) => {
-        updateState((draft) => (draft.tabell = tabell));
-    };
+    const setTabell = useCallback(
+        (tabell: Tabell) => {
+            updateState((draft) => (draft.tabell = tabell));
+        },
+        [updateState]
+    );
 
-    const setAndel = (andel: number) => {
-        updateState((draft) => (draft.andel = andel));
-    };
+    const setAndel = useCallback(
+        (andel: number) => {
+            updateState((draft) => (draft.andel = andel));
+        },
+        [updateState]
+    );
 
-    const setTimepris = (timepris: number) => {
-        updateState((draft) => (draft.timepris = timepris));
-    };
+    const setTimepris = useCallback(
+        (timepris: number) => {
+            updateState((draft) => (draft.timepris = timepris));
+        },
+        [updateState]
+    );
 
-    const handleHoursStateChange = (month: Month, timer: number) => {
-        updateState((draft) => (draft.timer[month] = timer));
-    };
+    const handleHoursStateChange = useCallback(
+        (month: Month, timer: number) => {
+            updateState((draft) => (draft.timer[month] = timer));
+        },
+        [updateState]
+    );
 
     return (
         <>
