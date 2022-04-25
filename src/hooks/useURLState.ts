@@ -1,56 +1,36 @@
-import produce, { Draft, freeze, castImmutable, Immutable } from 'immer';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { castImmutable, Immutable } from 'immer';
+import { useEffect } from 'react';
 import msgpackFactory from 'msgpack5';
 import base32Encode from 'base32-encode';
 import base32Decode from 'base32-decode';
+import { Updater, useImmer } from 'use-immer';
 
 const msgpack = msgpackFactory();
 
-export type Updater<T> = (recipe: Recipe<T>) => void;
-export type Recipe<T> = (draft: Draft<Immutable<T>>) => void;
-
-export const useURLState = <T extends object>(factory: () => T): readonly [Immutable<T>, Updater<T>] => {
-    const stateRef = useRef<Immutable<T>>();
-    const setRenderCount = useState(0)[1];
-
-    if (stateRef.current === undefined) {
+export const useURLState = <T extends object>(
+    paramName: string,
+    factory: () => T
+): readonly [Immutable<T>, Updater<T>] => {
+    const [state, setState] = useImmer<T>(() => {
         const location = new URL(window.location.toString());
         const searchParams = location.searchParams;
-        const oldState = searchParams.get('state');
-        let raw = factory();
+        const urlState = searchParams.get(paramName);
 
-        if (oldState !== null) {
-            const bytes = base32Decode(oldState, 'Crockford');
-            raw = msgpack.decode(Buffer.from(bytes));
-        }
-
-        stateRef.current = castImmutable(freeze(raw, true));
-    }
-
-    const updater = useCallback(
-        (recipe: Recipe<T>) => {
-            stateRef.current = produce(stateRef.current!, (draft) => {
-                recipe(draft);
-            });
-            setRenderCount((n) => n + 1);
-        },
-        [stateRef, setRenderCount]
-    );
-
-    const current = stateRef.current!;
+        return urlState !== null ? msgpack.decode(Buffer.from(base32Decode(urlState, 'Crockford'))) : factory();
+    });
 
     useEffect(() => {
-        const buffer = msgpack.encode(current);
+        const buffer = msgpack.encode(state);
         const encoded = base32Encode(buffer as any, 'Crockford');
         const location = new URL(window.location.toString());
         const searchParams = location.searchParams;
-        const oldState = searchParams.get('state');
+        const urlState = searchParams.get(paramName);
 
-        if (oldState !== encoded) {
-            searchParams.set('state', encoded);
-            window.history.replaceState(current, '', '?' + searchParams.toString());
+        if (urlState !== encoded) {
+            searchParams.set(paramName, encoded);
+            window.history.replaceState(state, '', '?' + searchParams.toString());
         }
-    }, [current]);
+    }, [state, paramName]);
 
-    return [current, updater];
+    return [castImmutable(state), setState];
 };
