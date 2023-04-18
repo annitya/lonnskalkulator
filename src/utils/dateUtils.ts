@@ -1,15 +1,15 @@
-import { Month } from '../types/Month';
+import { Months } from '../types/Months';
 import DateHolidays from 'date-holidays';
 import { DateTime } from 'luxon';
 
 const holidays = new DateHolidays('no');
-const currentYear = 2022;
+const currentYear = new Date().getFullYear();
 const helligdager = holidays
     .getHolidays(currentYear)
     .filter((holiday) => holiday.type !== 'observance')
     .map((helligdag) => DateTime.fromJSDate(helligdag.start));
 
-export const getHoursInMonth = (month: Month) => {
+export const getHoursInMonth = (month: Months) => {
     const startOfMonth = DateTime.local(currentYear, month, 1);
     let workingDays = 0;
 

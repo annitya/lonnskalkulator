@@ -1,57 +1,63 @@
-import { FunctionComponent } from 'react';
+import { FunctionComponent, useEffect, useState } from 'react';
 import { HoursState } from '../../types/HoursState';
-import { Month } from '../../types/Month';
-import { MonthState } from '../../types/MonthState';
 import { DisplayHeader } from '../display-header/DisplayHeader';
 import { SummaryItem } from '../summary-item/SummaryItem';
 
 import './YearDisplay.css';
+import { emptyMonthState } from '../../utils/monthUtils';
+import { GetMonthState } from '../month-display/MonthDisplay';
+import { MonthState } from '../../types/MonthState';
+import { TaxTable } from '../../taxes/taxTables';
 
 interface Props {
     hoursState: HoursState;
-    getMonthState: (hoursInMonth: number, month: Month) => MonthState;
+    getMonthState: GetMonthState;
+    taxTable: TaxTable;
 }
 
-const getTotals = (hoursState: HoursState, getMonthState: (hoursInMonth: number, month: Month) => MonthState) => {
-    const totals = {
-        timer: 0,
-        grunnbeløp: 0,
-        feriepengeTrekk: 0,
-        brutto: 0,
-        netto: 0,
-        trekk: 0,
-    };
+const useTotals = (hoursState: HoursState, getMonthState: GetMonthState, taxTable: TaxTable) => {
+    const [totals, setTotals] = useState<MonthState>(emptyMonthState);
 
-    Object.keys(hoursState).forEach((key: any) => {
-        const month: Month = key;
+    useEffect(() => {
+        const promises = Object.entries(hoursState).map(([month, hours]) => {
+            // @ts-ignore
+            return getMonthState(hours, month);
+        });
 
-        const monthState = getMonthState(hoursState[month], month);
+        Promise.all(promises).then(function (monthStates: MonthState[]) {
+            const newTotals = { ...emptyMonthState };
 
-        totals.timer += monthState.timer;
-        totals.grunnbeløp += monthState.grunnbeløp;
-        totals.feriepengeTrekk += monthState.feriepengeTrekk;
-        totals.brutto += monthState.brutto;
-        totals.netto += monthState.netto;
-        totals.trekk += monthState.trekk;
-    });
+            monthStates.forEach(monthState => {
+
+                newTotals.hoursInMonth += monthState.hoursInMonth;
+                newTotals.baseSalary += monthState.baseSalary;
+                newTotals.holidayPay += monthState.holidayPay;
+                newTotals.grossSalary += monthState.grossSalary;
+                newTotals.netSalary += monthState.netSalary;
+                newTotals.taxAmount += monthState.taxAmount;
+            });
+
+            setTotals(newTotals);
+        });
+    }, [hoursState, taxTable, getMonthState])
 
     return totals;
 };
 
-export const YearDisplay: FunctionComponent<Props> = ({ hoursState, getMonthState }) => {
-    const totals = getTotals(hoursState, getMonthState);
-    const skatteprosent = Math.round(Math.abs(totals.trekk / totals.brutto) * 100);
+export const YearDisplay: FunctionComponent<Props> = ({ hoursState, getMonthState, taxTable }) => {
+    const { hoursInMonth, baseSalary, holidayPay, grossSalary, taxAmount, netSalary } = useTotals(hoursState, getMonthState, taxTable);
+    const skatteprosent = Math.round(Math.abs(taxAmount / grossSalary) * 100);
 
     return (
         <div className="yearDisplay">
             <DisplayHeader title={String(new Date().getFullYear())} />
             <div className="wrapper">
-                <SummaryItem item="Timer" value={totals.timer} />
-                <SummaryItem item="Grunnbeløp" value={totals.grunnbeløp} />
-                <SummaryItem item="Feriepenger" value={totals.feriepengeTrekk} />
-                <SummaryItem item="Brutto" value={totals.brutto} />
-                <SummaryItem item={`Skatt (${skatteprosent}%)`} value={totals.trekk} />
-                <SummaryItem item="Netto" value={totals.netto} />
+                <SummaryItem item="Timer" value={hoursInMonth} />
+                <SummaryItem item="Grunnbeløp" value={baseSalary} />
+                <SummaryItem item="Feriepenger" value={holidayPay} />
+                <SummaryItem item="Brutto" value={grossSalary} />
+                <SummaryItem item={`Skatt (${skatteprosent}%)`} value={taxAmount} />
+                <SummaryItem item="Netto" value={netSalary} />
             </div>
         </div>
     );

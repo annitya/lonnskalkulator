@@ -1,51 +1,60 @@
-import { skattetrekk, Tabell } from '../skattetabell/2022';
-import { Month } from '../types/Month';
+import { TaxTable } from '../taxes/taxTables';
+import { Months } from '../types/Months';
 import { MonthState } from '../types/MonthState';
+import { fetchMonthlyTax } from '../taxes/taxService';
 
-export const getNameOfMonth = (month: Month) => {
+export const emptyMonthState: MonthState = {
+    hoursInMonth: 0,
+    baseSalary: 0,
+    holidayPay: 0,
+    grossSalary: 0,
+    netSalary: 0,
+    taxAmount: 0,
+};
+
+export const getNameOfMonth = (month: Months) => {
     switch (month) {
-        case Month.Jan:
+        case Months.Jan:
             return 'Januar';
-        case Month.Feb:
+        case Months.Feb:
             return 'Februar';
-        case Month.Mar:
+        case Months.Mar:
             return 'Mars';
-        case Month.Apr:
+        case Months.Apr:
             return 'April';
-        case Month.May:
+        case Months.May:
             return 'Mai';
-        case Month.Jun:
+        case Months.Jun:
             return 'Juni';
-        case Month.Jul:
+        case Months.Jul:
             return 'Juli';
-        case Month.Aug:
+        case Months.Aug:
             return 'August';
-        case Month.Sep:
+        case Months.Sep:
             return 'September';
-        case Month.Oct:
+        case Months.Oct:
             return 'Oktober';
-        case Month.Nov:
+        case Months.Nov:
             return 'November';
-        case Month.Dec:
+        case Months.Dec:
             return 'Desember';
     }
 };
 
-export const monthStateBuilder =
-    (timepris: number, andel: number, tabell: Tabell) =>
-    (hoursInMonth: number, month: Month): MonthState => {
-        const grunnbeløp = timepris * hoursInMonth * andel;
-        const feriepengeTrekk = grunnbeløp * 0.12 * -1;
-        const brutto = grunnbeløp + feriepengeTrekk;
-        const trekk = skattetrekk(brutto, tabell) * (month === Month.Nov ? -0.5 : -1);
-        const netto = brutto + trekk;
+export const monthStateBuilder = (timepris: number, employeeShare: number, taxTable: TaxTable) => async (hoursInMonth: number, month: Months): Promise<MonthState> => {
+    const baseSalary = timepris * hoursInMonth * employeeShare;
+    const holidayPay = baseSalary * 0.12 * -1;
+    const grossSalary = baseSalary + holidayPay;
+    const taxResult = await fetchMonthlyTax(taxTable, grossSalary, new Date().getFullYear());
+    const taxAmount = taxResult * (month === Months.Nov ? -0.5 : -1);
+    const netSalary = grossSalary + taxAmount;
 
-        return {
-            timer: hoursInMonth,
-            grunnbeløp,
-            feriepengeTrekk,
-            brutto,
-            netto,
-            trekk,
-        };
+    return {
+        hoursInMonth,
+        baseSalary,
+        holidayPay,
+        grossSalary,
+        netSalary,
+        taxAmount
     };
+};

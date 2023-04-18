@@ -1,22 +1,30 @@
-import { FunctionComponent } from 'react';
+import { FunctionComponent, useEffect, useState } from 'react';
 import Input from '../input/Input';
 import { DisplayHeader } from '../display-header/DisplayHeader';
 import { SummaryItem } from '../summary-item/SummaryItem';
-import { Month } from '../../types/Month';
-import { getNameOfMonth } from '../../utils/monthUtils';
-import { MonthState } from '../../types/MonthState';
+import { Months } from '../../types/Months';
+import { emptyMonthState, getNameOfMonth, monthStateBuilder } from '../../utils/monthUtils';
 
 import './MonthDisplay.css';
+import { MonthState } from '../../types/MonthState';
+
+export type GetMonthState = ReturnType<typeof monthStateBuilder>;
 
 interface Props {
-    month: Month;
-    timer: number;
-    handleHoursStateChange: (month: Month, timer: number) => void;
-    getMonthState: (hoursInMonth: number, month: Month) => MonthState;
+    month: Months;
+    hours: number;
+    handleHoursStateChange: (month: Months, timer: number) => void;
+    getMonthState: GetMonthState;
 }
 
-export const MonthDisplay: FunctionComponent<Props> = ({ month, timer, handleHoursStateChange, getMonthState }) => {
-    const monthState = getMonthState(timer, month);
+export const MonthDisplay: FunctionComponent<Props> = ({ month, hours, handleHoursStateChange, getMonthState }) => {
+    const [monthState, setMonthState] = useState<MonthState>(emptyMonthState);
+
+    useEffect(() => {
+        getMonthState(hours, month).then(setMonthState);
+    }, [hours, month, getMonthState]);
+
+    const { baseSalary, holidayPay, grossSalary, taxAmount, netSalary } = monthState;
 
     return (
         <div className="monthDisplay">
@@ -26,15 +34,15 @@ export const MonthDisplay: FunctionComponent<Props> = ({ month, timer, handleHou
                     inputId="nameOfMonth"
                     label="Antall timer"
                     type="number"
-                    value={timer}
-                    placeholder={String(timer)}
+                    value={hours}
+                    placeholder={String(hours)}
                     onChange={(event) => handleHoursStateChange(month, parseFloat(event.target.value))}
                 />
-                <SummaryItem item="Grunnbeløp" value={monthState.grunnbeløp} />
-                <SummaryItem item="Feriepenger" value={monthState.feriepengeTrekk} />
-                <SummaryItem item="Brutto" value={monthState.brutto} />
-                <SummaryItem item="Skatt" value={monthState.trekk} />
-                <SummaryItem item="Netto" value={monthState.netto} />
+                <SummaryItem item="Grunnbeløp" value={baseSalary} />
+                <SummaryItem item="Feriepenger" value={holidayPay} />
+                <SummaryItem item="Brutto" value={grossSalary} />
+                <SummaryItem item="Skatt" value={taxAmount} />
+                <SummaryItem item="Netto" value={netSalary} />
             </div>
         </div>
     );
